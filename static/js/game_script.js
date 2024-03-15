@@ -3,12 +3,12 @@ document.addEventListener("DOMContentLoaded", function () {
     const INVADER_ROWS = 5;
     const INVADER_COLS = 11;
     const BLOCK_HEIGHT = 52;
-    const BLOCK_WIDTH = 35;
-    const OFFSET_X = 100;
+    const BLOCK_WIDTH = 32;
+    const OFFSET_X = 70;
     const OFFSET_Y = 50;
 
-    const INVADER_SPEED = 400;
-    const INVADER_STEPS = 80;
+    const INVADER_SPEED = 800;
+    const INVADER_STEPS = 28;
     //24
     const INVADER_ROWS_MOVE = 5;
 
@@ -22,26 +22,28 @@ document.addEventListener("DOMContentLoaded", function () {
         canvas: document.getElementById('game-canvas')
     });
 
-    // Calculate canvas dimensions based on window size
     function calculateCanvasSize() {
         const canvas = document.getElementById('game-canvas');
         const navbarHeight = document.querySelector('.navbar').offsetHeight;
         const windowHeight = window.innerHeight;
         const canvasHeight = windowHeight - navbarHeight;
-        const canvasWidth = canvasHeight * (16 / 9); // 16:9 aspect ratio
+        const canvasWidth = canvasHeight * (16 / 9);
         canvas.width = canvasWidth;
         canvas.height = canvasHeight;
     }
 
-    // Call function initially and on window resize
     calculateCanvasSize();
     window.addEventListener('resize', calculateCanvasSize);
 
     loadRoot("static/res/sprites")
     loadSprite("player", "/invaders/space__0006_Player.png")
-    loadSprite("invader_1", "/invaders/space__0004_C1.png")
+    loadSprite("invader_A1", "/invaders/space__0004_C1.png")
+    loadSprite("invader_A2", "/invaders/space__0005_C2.png")
+    loadSprite("invader_B1", "/invaders/space__0002_B1.png")
+    loadSprite("invader_B2", "/invaders/space__0003_B2.png")
+    loadSprite("invader_C1", "/invaders/space__0000_A1.png")
+    loadSprite("invader_C2", "/invaders/space__0001_A2.png")
 
-    // Load root scene
     scene("game", () => {
 
         const player = add([
@@ -62,15 +64,33 @@ document.addEventListener("DOMContentLoaded", function () {
         function spawnInvaders() {
             for (let row = 0; row < INVADER_ROWS; row++) {
                 invaderMap[row] = [];
+                let invaderSprite, offsetX = 0, offsetY = 0;
+                switch (row) {
+                    case 0:
+                        invaderSprite = "invader_C1";
+                        offsetX = 9;
+                        break;
+                    case 1:
+                    case 2:
+                        invaderSprite = "invader_B1";
+                        offsetX = 3;
+                        break;
+                    case 3:
+                    case 4:
+                        invaderSprite = "invader_A1";
+                        break;
+                    default:
+                        invaderSprite = "invader_A1";
+                }
                 for (let col = 0; col < INVADER_COLS; col++) {
-                    const x = col * BLOCK_WIDTH * 2 + OFFSET_X;
+                    const x = col * BLOCK_WIDTH * 2 + OFFSET_X + offsetX;
                     const y = row * BLOCK_HEIGHT + OFFSET_Y;
                     const invader = add([
                         pos(x, y),
-                        sprite("invader_1"),
+                        sprite(invaderSprite),
                         area(),
                         scale(2),
-                        "invader_1",
+                        invaderSprite,
                         {
                             row: row,
                             col: col,
@@ -103,21 +123,18 @@ document.addEventListener("DOMContentLoaded", function () {
         let invaderRowsMoved = 0;
 
 
-        let invaderMoveTimer = 0; // Variable to keep track of time
+        let invaderMoveTimer = 0;
 
         onUpdate(() => {
             if (pause) return;
 
-            // Increment the timer by the time elapsed since the last frame
             invaderMoveTimer += dt();
 
-            // Check if one second has elapsed
             if (invaderMoveTimer >= 1) {
-                // Reset the timer
                 invaderMoveTimer = 0;
 
-                // Move the invaders
-                const invaders = get("invader_1");
+                const invaders = get(["invader_A1", "invader_B1", "invader_C1"]);
+                console.log("Invaders found:", invaders.length);
                 for (const invader of invaders) {
                     invader.move(invaderDirection * INVADER_SPEED, 0);
                 }
@@ -140,13 +157,12 @@ document.addEventListener("DOMContentLoaded", function () {
 
             function moveInvadersDown() {
                 invaderRowsMoved++;
-                const invaders = get("invader_1"); // Get all entities with the "invader_1" tag
+                const invaders = get(["invader_A1", "invader_B1", "invader_C1"]);
                 for (const invader of invaders) {
-                    invader.moveBy(0, BLOCK_HEIGHT); // Move each invader downwards by BLOCK_HEIGHT pixels
+                    invader.moveBy(0, BLOCK_HEIGHT);
                 }
             }
 
-            // Your existing code here...
         });
 
 
@@ -155,7 +171,7 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 
     scene("gameOver", (score) => {
-        // Add scene code here
+        // Scene Code
     });
 
     go("game");
