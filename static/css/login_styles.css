@@ -1,0 +1,96 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@200&display=swap');
+*{
+    padding: 0;
+    margin: 0;
+    box-sizing: border-box;
+  
+}
+
+body{
+    background: url('/static/res/space_invaders.jpg');
+    background-size: cover;
+    font-family: 'Poppins', sans-serif;
+
+}
+form{
+    border-radius: 20px;
+    margin-top: 130px !important;
+    width: 24% !important;
+    background-color: white !important;
+    padding: 50px;
+}
+
+.btn-primary {
+    width: 100%;
+    border: none;
+    border-radius: 50px;
+    background: #6d0202;
+}
+
+.btn-primary:hover {
+    background: #d60404;
+}
+
+.btn-primary:focus {
+    background: #6d0202;
+}
+
+.nav-pills .nav-link {
+    border-radius: 8px;
+    padding: 5px 10px;
+    margin: 10px 2px;
+    background-color: white;
+    color: #000;
+}
+
+.nav-pills .nav-link.active, 
+.nav-pills .show > .nav-link {
+    background-color: #000000;
+    color: #fff;
+}
+
+.nav-pills {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 20px;
+}
+
+.form-control{
+    color: rgba(0,0,0,.87);
+    border-bottom-color: rgba(0,0,0,.42);
+    box-shadow: none !important;
+    border: none;
+    border-bottom: 1px solid;
+    border-radius: 4px 4px 0 0;
+    }
+
+@keyframes blink {
+    0% { opacity: 0.2; }
+    50% { opacity: 1; }
+    100% { opacity: 0.2; }
+}
+
+.error{
+    color: white;
+    background-color: #d60404;
+    text-align: center;
+    border-radius: 5px;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    animation: blink 1.5s infinite;
+}
+
+ h4{
+    font-size: 2rem !important;
+    font-weight: 700;
+ }
+
+ .form-label{
+    font-weight: 800 !important;
+ }
+
+@media only screen and (max-width: 600px) {
+    form {
+        width: 100% !important;
+    }
+  }
