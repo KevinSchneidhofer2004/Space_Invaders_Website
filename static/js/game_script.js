@@ -13,10 +13,14 @@ document.addEventListener("DOMContentLoaded", function () {
     const INVADER_ROWS_MOVE = 5;
 
     const PLAYER_MOVE_SPEED = 250;
-    const SCREEN_EDGE = 100;
+    const SCREEN_EDGE = 2;
 
     const GUN_COOLDOWN_TIME = 1;
     const BULLET_SPEED = 300;
+
+    const highscoresDiv = document.getElementById("highscores");
+
+    const highscoresDivWidth = highscoresDiv.offsetWidth;
 
     kaboom({
         background: [0, 0, 0],
@@ -158,7 +162,7 @@ document.addEventListener("DOMContentLoaded", function () {
                         break;
                     case 1:
                     case 2:
-                        invaderSprite = "invader_B1";
+                        invaderSprite = "invader_B2";
                         offsetX = 3;
                         break;
                     case 3:
@@ -199,7 +203,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
         onKeyDown("right", () => {
             if (pause) return;
-            if (player.pos.x <= canvas.width - (SCREEN_EDGE * 2)) {
+            if (player.pos.x <= canvas.width - highscoresDivWidth - SCREEN_EDGE) {
+                // canvas.width - width vom div das den score anzeigt
                 player.move(PLAYER_MOVE_SPEED, 0);
             }
         });
