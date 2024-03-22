@@ -15,6 +15,9 @@ document.addEventListener("DOMContentLoaded", function () {
     const PLAYER_MOVE_SPEED = 250;
     const SCREEN_EDGE = 100;
 
+    const GUN_COOLDOWN_TIME = 1;
+    const BULLET_SPEED = 300;
+
     kaboom({
         background: [0, 0, 0],
         debug: true,
@@ -46,6 +49,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
     scene("game", () => {
 
+        let lastShootTime = 0;
+
         const player = add([
             sprite("player"),
             scale(2),
@@ -59,8 +64,56 @@ document.addEventListener("DOMContentLoaded", function () {
             "player",
         ]);
 
+        onKeyPress("space", () => {
+            console.log("Space key pressed");
+            console.log("Pause status:", pause);
+            
+        });
+
+        let pause = false;
+
+        // Function to shoot bullets
+        onKeyPress("space", () => {
+            if (pause) return;
+            if (time() - lastShootTime > GUN_COOLDOWN_TIME) {
+                lastShootTime = time();
+
+                const bulletPosition = {
+                    x: player.pos.x + 10,
+                    y: player.pos.y
+                };
+
+                console.log(player.pos)
+                console.log(bulletPosition);
+                spawnBullet(bulletPosition, -1, "bullet");
+            }
+        });
+
+        // Function to spawn bullets
+        function spawnBullet(bulletPos, direction, tag) {
+
+            const bullet = add([
+                rect(4, 12),
+                pos(bulletPos),
+                //origin("center"),
+                color(255, 255, 255),
+                area(),
+                "missile",
+                tag,
+                {
+                    direction,
+                },
+            ]);
+        
+            bullet.onUpdate(() => {
+                if (bullet.pos.y < 0 || bullet.pos.y > height() || bullet.pos.x < 0 || bullet.pos.x > width()) {
+                    destroy(bullet);
+                }
+            });
+        }
 
         let invaderMap = [];
+
         function spawnInvaders() {
             for (let row = 0; row < INVADER_ROWS; row++) {
                 invaderMap[row] = [];
@@ -90,20 +143,19 @@ document.addEventListener("DOMContentLoaded", function () {
                         sprite(invaderSprite),
                         area(),
                         scale(2),
-                        invaderSprite,
+                        "invader",
                         {
                             row: row,
                             col: col,
                         },
                     ]);
-                    invaderMap[row][col] = invader;
+                    console.log(invaderSprite)
                 }
             }
         }
         spawnInvaders();
 
 
-        let pause = false;
         onKeyDown("left", () => {
             if (pause) return;
             if (player.pos.x >= SCREEN_EDGE) {
@@ -122,7 +174,6 @@ document.addEventListener("DOMContentLoaded", function () {
         let invaderMoveCounter = 0;
         let invaderRowsMoved = 0;
 
-
         let invaderMoveTimer = 0;
 
         onUpdate(() => {
@@ -133,7 +184,7 @@ document.addEventListener("DOMContentLoaded", function () {
             if (invaderMoveTimer >= 1) {
                 invaderMoveTimer = 0;
 
-                const invaders = get(["invader_A1", "invader_B1", "invader_C1"]);
+                const invaders = get("invader");
                 console.log("Invaders found:", invaders.length);
                 for (const invader of invaders) {
                     invader.move(invaderDirection * INVADER_SPEED, 0);
@@ -157,17 +208,13 @@ document.addEventListener("DOMContentLoaded", function () {
 
             function moveInvadersDown() {
                 invaderRowsMoved++;
-                const invaders = get(["invader_A1", "invader_B1", "invader_C1"]);
+                const invaders = get("invader");
                 for (const invader of invaders) {
                     invader.moveBy(0, BLOCK_HEIGHT);
                 }
             }
 
         });
-
-
-
-
     });
 
     scene("gameOver", (score) => {
