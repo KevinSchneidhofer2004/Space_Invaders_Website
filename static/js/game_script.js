@@ -147,6 +147,7 @@ document.addEventListener("DOMContentLoaded", function () {
                         {
                             row: row,
                             col: col,
+                            spriteName: invaderSprite,
                         },
                     ]);
                     console.log(invaderSprite)
@@ -170,6 +171,36 @@ document.addEventListener("DOMContentLoaded", function () {
             }
         });
 
+        function changeInvaderSprites() {
+            const invaders = get("invader");
+            for (const invader of invaders) {
+                let newSprite;
+                switch (invader.spriteName) {
+                    case "invader_A1":
+                        newSprite = "invader_A2";
+                        break;
+                    case "invader_A2":
+                        newSprite = "invader_A1";
+                        break;
+                    case "invader_B1":
+                        newSprite = "invader_B2";
+                        break;
+                    case "invader_B2":
+                        newSprite = "invader_B1";
+                        break;
+                    case "invader_C1":
+                        newSprite = "invader_C2";
+                        break;
+                    case "invader_C2":
+                        newSprite = "invader_C1";
+                        break;
+                    default:
+                        newSprite = invader.spriteId;
+                }
+                invader.use(sprite(newSprite));
+            }
+        }
+
         let invaderDirection = 1;
         let invaderMoveCounter = 0;
         let invaderRowsMoved = 0;
@@ -188,6 +219,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 console.log("Invaders found:", invaders.length);
                 for (const invader of invaders) {
                     invader.move(invaderDirection * INVADER_SPEED, 0);
+                    console.log(invader.spriteName);
                 }
 
                 invaderMoveCounter++;
@@ -204,6 +236,8 @@ document.addEventListener("DOMContentLoaded", function () {
                         go("gameOver", player.score);
                     });
                 }
+
+                changeInvaderSprites()
             }
 
             function moveInvadersDown() {
