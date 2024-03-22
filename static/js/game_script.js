@@ -112,6 +112,39 @@ document.addEventListener("DOMContentLoaded", function () {
             });
         }
 
+        function changeInvaderSprites() {
+            const invaders = get("invader");
+            for (const invader of invaders) {
+                let newSprite;
+                switch (invader.spriteName) {
+                    case "invader_A1":
+                        newSprite = "invader_A2";
+                        break;
+                    case "invader_A2":
+                        newSprite = "invader_A1";
+                        break;
+                    case "invader_B1":
+                        newSprite = "invader_B2";
+                        break;
+                    case "invader_B2":
+                        newSprite = "invader_B1";
+                        break;
+                    case "invader_C1":
+                        newSprite = "invader_C2";
+                        break;
+                    case "invader_C2":
+                        newSprite = "invader_C1";
+                        break;
+                    default:
+                        newSprite = invader.spriteId;
+                }
+                invader.spriteName = newSprite;
+                invader.use(sprite(newSprite));
+            }
+
+            console.log("Sprites changed");
+        }
+
         let invaderMap = [];
 
         function spawnInvaders() {
@@ -120,7 +153,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 let invaderSprite, offsetX = 0, offsetY = 0;
                 switch (row) {
                     case 0:
-                        invaderSprite = "invader_C1";
+                        invaderSprite = "invader_C2";
                         offsetX = 9;
                         break;
                     case 1:
@@ -171,36 +204,6 @@ document.addEventListener("DOMContentLoaded", function () {
             }
         });
 
-        function changeInvaderSprites() {
-            const invaders = get("invader");
-            for (const invader of invaders) {
-                let newSprite;
-                switch (invader.spriteName) {
-                    case "invader_A1":
-                        newSprite = "invader_A2";
-                        break;
-                    case "invader_A2":
-                        newSprite = "invader_A1";
-                        break;
-                    case "invader_B1":
-                        newSprite = "invader_B2";
-                        break;
-                    case "invader_B2":
-                        newSprite = "invader_B1";
-                        break;
-                    case "invader_C1":
-                        newSprite = "invader_C2";
-                        break;
-                    case "invader_C2":
-                        newSprite = "invader_C1";
-                        break;
-                    default:
-                        newSprite = invader.spriteId;
-                }
-                invader.use(sprite(newSprite));
-            }
-        }
-
         let invaderDirection = 1;
         let invaderMoveCounter = 0;
         let invaderRowsMoved = 0;
@@ -209,37 +212,35 @@ document.addEventListener("DOMContentLoaded", function () {
 
         onUpdate(() => {
             if (pause) return;
-
+        
             invaderMoveTimer += dt();
-
+        
             if (invaderMoveTimer >= 1) {
                 invaderMoveTimer = 0;
-
+        
                 const invaders = get("invader");
-                console.log("Invaders found:", invaders.length);
                 for (const invader of invaders) {
                     invader.move(invaderDirection * INVADER_SPEED, 0);
-                    console.log(invader.spriteName);
                 }
-
+        
                 invaderMoveCounter++;
-
+        
                 if (invaderMoveCounter > INVADER_STEPS) {
                     invaderDirection = invaderDirection * -1;
                     invaderMoveCounter = 0;
                     moveInvadersDown();
                 }
-
+        
+                changeInvaderSprites();
+        
                 if (invaderRowsMoved > INVADER_ROWS_MOVE) {
                     pause = true;
                     wait(2, () => {
                         go("gameOver", player.score);
                     });
                 }
-
-                changeInvaderSprites()
             }
-
+        
             function moveInvadersDown() {
                 invaderRowsMoved++;
                 const invaders = get("invader");
@@ -247,7 +248,6 @@ document.addEventListener("DOMContentLoaded", function () {
                     invader.moveBy(0, BLOCK_HEIGHT);
                 }
             }
-
         });
     });
 
