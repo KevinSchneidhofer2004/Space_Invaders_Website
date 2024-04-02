@@ -8,15 +8,17 @@ document.addEventListener("DOMContentLoaded", function () {
     const OFFSET_Y = 50;
 
     const INVADER_SPEED = 1100;
-    const INVADER_STEPS = 26;
-    //24
+
+    const INVADER_MOVE_THRESHOLD = 0.5;
+    //1100
+    const INVADER_STEPS = 25;
+    //26
     const INVADER_ROWS_MOVE = 5;
 
     const PLAYER_MOVE_SPEED = 250;
     const SCREEN_EDGE = 2;
 
-    const GUN_COOLDOWN_TIME = 1;
-    const BULLET_SPEED = 12000;
+    const BULLET_SPEED = 14000;
     // 30000
 
     const highscoresDiv = document.getElementById("highscores");
@@ -51,10 +53,9 @@ document.addEventListener("DOMContentLoaded", function () {
     loadSprite("invader_B2", "/invaders/space__0003_B2.png")
     loadSprite("invader_C1", "/invaders/space__0000_A1.png")
     loadSprite("invader_C2", "/invaders/space__0001_A2.png")
+    loadSprite("invader_explosion", "/invaders/space__0009_EnemyExplosion.png")
 
     scene("game", () => {
-
-        let lastShootTime = 0;
 
         const player = add([
             sprite("player"),
@@ -117,38 +118,65 @@ document.addEventListener("DOMContentLoaded", function () {
             bullet.on("destroy", () => { // Event handler for bullet destruction
                 bulletOnScreen = false; // Set to false when bullet gets destroyed
             });
+
+            let shaking = false;
+
+            function resetShake() {
+                shaking = false;
+                camPos(800, 387.5); // Reset camera position to its original position
+            }
+
+
+            onCollide("bullet", "invader", (bullet, invader) => { // Collision detection with invaders
+                destroy(bullet); // Destroy bullet
+                bulletOnScreen = false;
+                invader.exploded = true;
+                invader.use(sprite("invader_explosion"));
+            
+                if (!shaking) { // Check if shake is not already active
+                    resetShake(); // Reset any existing shake effect
+                    shaking = true; // Set shaking to true to indicate shake is active
+                    shake(4); // Apply new shake effect
+                }
+
+                wait(0.1, () => {
+                    destroy(invader); // Destroy the invader after 1 second
+                });
+            });
+            
         }
 
         function changeInvaderSprites() {
             const invaders = get("invader");
             for (const invader of invaders) {
-                let newSprite;
-                switch (invader.spriteName) {
-                    case "invader_A1":
-                        newSprite = "invader_A2";
-                        break;
-                    case "invader_A2":
-                        newSprite = "invader_A1";
-                        break;
-                    case "invader_B1":
-                        newSprite = "invader_B2";
-                        break;
-                    case "invader_B2":
-                        newSprite = "invader_B1";
-                        break;
-                    case "invader_C1":
-                        newSprite = "invader_C2";
-                        break;
-                    case "invader_C2":
-                        newSprite = "invader_C1";
-                        break;
-                    default:
-                        newSprite = invader.spriteId;
+                if (!invader.exploded) {
+                    let newSprite;
+                    switch (invader.spriteName) {
+                        case "invader_A1":
+                            newSprite = "invader_A2";
+                            break;
+                        case "invader_A2":
+                            newSprite = "invader_A1";
+                            break;
+                        case "invader_B1":
+                            newSprite = "invader_B2";
+                            break;
+                        case "invader_B2":
+                            newSprite = "invader_B1";
+                            break;
+                        case "invader_C1":
+                            newSprite = "invader_C2";
+                            break;
+                        case "invader_C2":
+                            newSprite = "invader_C1";
+                            break;
+                        default:
+                            newSprite = invader.spriteId;
+                    }
+                    invader.spriteName = newSprite;
+                    invader.use(sprite(newSprite));
                 }
-                invader.spriteName = newSprite;
-                invader.use(sprite(newSprite));
             }
-
             console.log("Sprites changed");
         }
 
@@ -188,8 +216,12 @@ document.addEventListener("DOMContentLoaded", function () {
                             row: row,
                             col: col,
                             spriteName: invaderSprite,
+                            exploded: false,
                         },
                     ]);
+                    console.log(invader.pos)
+                    const camPosition = camPos();
+                    console.log("Camera position:", camPosition);
                     console.log(invaderSprite)
                 }
             }
@@ -206,7 +238,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
         onKeyDown("right", () => {
             if (pause) return;
-            if (player.pos.x <= canvas.width - highscoresDivWidth - SCREEN_EDGE) {
+            if (player.pos.x <= canvas.width - highscoresDivWidth + 168) {
                 // canvas.width - width vom div das den score anzeigt
                 player.move(PLAYER_MOVE_SPEED, 0);
             }
@@ -223,9 +255,12 @@ document.addEventListener("DOMContentLoaded", function () {
         
             invaderMoveTimer += dt();
         
-            if (invaderMoveTimer >= 1) {
-                invaderMoveTimer = 0;
-        
+            // Adjust the invader speed by controlling the move interval
+             // Lower value means faster speed
+
+            if (invaderMoveTimer >= INVADER_MOVE_THRESHOLD) {
+                invaderMoveTimer -= INVADER_MOVE_THRESHOLD; // Reset timer
+
                 const invaders = get("invader");
                 for (const invader of invaders) {
                     invader.move(invaderDirection * INVADER_SPEED, 0);
