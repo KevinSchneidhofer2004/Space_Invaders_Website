@@ -7,8 +7,8 @@ document.addEventListener("DOMContentLoaded", function () {
     const OFFSET_X = 70;
     const OFFSET_Y = 50;
 
-    const INVADER_SPEED = 800;
-    const INVADER_STEPS = 28;
+    const INVADER_SPEED = 1100;
+    const INVADER_STEPS = 26;
     //24
     const INVADER_ROWS_MOVE = 5;
 
@@ -16,7 +16,8 @@ document.addEventListener("DOMContentLoaded", function () {
     const SCREEN_EDGE = 2;
 
     const GUN_COOLDOWN_TIME = 1;
-    const BULLET_SPEED = 300;
+    const BULLET_SPEED = 12000;
+    // 30000
 
     const highscoresDiv = document.getElementById("highscores");
 
@@ -75,44 +76,46 @@ document.addEventListener("DOMContentLoaded", function () {
         });
 
         let pause = false;
+        let bulletOnScreen = false;
 
         // Function to shoot bullets
         onKeyPress("space", () => {
             if (pause) return;
-            if (time() - lastShootTime > GUN_COOLDOWN_TIME) {
-                lastShootTime = time();
-
+            if (!bulletOnScreen) { // Check if there's no bullet on the screen
                 const bulletPosition = {
                     x: player.pos.x + 10,
                     y: player.pos.y
                 };
-
-                console.log(player.pos)
-                console.log(bulletPosition);
                 spawnBullet(bulletPosition, -1, "bullet");
+                bulletOnScreen = true; // Set to true when bullet is fired
             }
         });
 
         // Function to spawn bullets
         function spawnBullet(bulletPos, direction, tag) {
-
             const bullet = add([
                 rect(4, 12),
-                pos(bulletPos),
-                //origin("center"),
+                pos(bulletPos.x + 14, bulletPos.y - 12), // Set initial position
                 color(255, 255, 255),
                 area(),
                 "missile",
                 tag,
                 {
                     direction,
+                    speed: BULLET_SPEED,
                 },
             ]);
-        
+
             bullet.onUpdate(() => {
-                if (bullet.pos.y < 0 || bullet.pos.y > height() || bullet.pos.x < 0 || bullet.pos.x > width()) {
+                bullet.move(0, -2 * bullet.speed * dt()); // Move the bullet upwards
+                if (bullet.pos.y < 0) { // If bullet goes off-screen, destroy it
                     destroy(bullet);
+                    console.log("Bullet destroyed");
                 }
+            });
+
+            bullet.on("destroy", () => { // Event handler for bullet destruction
+                bulletOnScreen = false; // Set to false when bullet gets destroyed
             });
         }
 
