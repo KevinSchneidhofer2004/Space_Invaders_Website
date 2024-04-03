@@ -13,7 +13,7 @@ document.addEventListener("DOMContentLoaded", function () {
     //1100
     const INVADER_STEPS = 25;
     //26
-    const INVADER_ROWS_MOVE = 5;
+    INVADER_ROWS_MOVE = 5;
 
     const PLAYER_MOVE_SPEED = 250;
     const SCREEN_EDGE = 2;
@@ -291,9 +291,12 @@ document.addEventListener("DOMContentLoaded", function () {
 
                     if (invader_row > maxRow) {
                         maxRow = invader_row;
-                        console.log("Max Row is: " + maxRow);
                     }
                 }
+
+                INVADER_ROWS_MOVE = 5 + (5 - maxRow);
+                console.log("Max Row is: " + maxRow);
+                console.log("INVADER_ROWS_MOVE: " + INVADER_ROWS_MOVE);
         
                 invaderMoveCounter++;
         
