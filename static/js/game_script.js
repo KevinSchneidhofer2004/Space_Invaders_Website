@@ -9,7 +9,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     const INVADER_SPEED = 1100;
 
-    const INVADER_MOVE_THRESHOLD = 0.5;
+    INVADER_MOVE_THRESHOLD = 0.5;
     //1100
     const INVADER_STEPS = 25;
     //26
@@ -24,6 +24,9 @@ document.addEventListener("DOMContentLoaded", function () {
     const highscoresDiv = document.getElementById("highscores");
 
     const highscoresDivWidth = highscoresDiv.offsetWidth;
+
+    let score = 0;
+    let remainingInvaders = INVADER_ROWS * INVADER_COLS;
 
     kaboom({
         background: [0, 0, 0],
@@ -70,6 +73,16 @@ document.addEventListener("DOMContentLoaded", function () {
             "player",
         ]);
 
+        const scoreLabel = add([
+            text("Score: 0", {
+                size: 25,
+            }),
+            pos(12, 12),
+            {
+                value: score,
+            },
+        ]);
+
         onKeyPress("space", () => {
             console.log("Space key pressed");
             console.log("Pause status:", pause);
@@ -79,24 +92,22 @@ document.addEventListener("DOMContentLoaded", function () {
         let pause = false;
         let bulletOnScreen = false;
 
-        // Function to shoot bullets
         onKeyPress("space", () => {
             if (pause) return;
-            if (!bulletOnScreen) { // Check if there's no bullet on the screen
+            if (!bulletOnScreen) {
                 const bulletPosition = {
                     x: player.pos.x + 10,
                     y: player.pos.y
                 };
                 spawnBullet(bulletPosition, -1, "bullet");
-                bulletOnScreen = true; // Set to true when bullet is fired
+                bulletOnScreen = true;
             }
         });
 
-        // Function to spawn bullets
         function spawnBullet(bulletPos, direction, tag) {
             const bullet = add([
                 rect(4, 12),
-                pos(bulletPos.x + 14, bulletPos.y - 12), // Set initial position
+                pos(bulletPos.x + 14, bulletPos.y - 12),
                 color(255, 255, 255),
                 area(),
                 "missile",
@@ -108,42 +119,52 @@ document.addEventListener("DOMContentLoaded", function () {
             ]);
 
             bullet.onUpdate(() => {
-                bullet.move(0, -2 * bullet.speed * dt()); // Move the bullet upwards
-                if (bullet.pos.y < 0) { // If bullet goes off-screen, destroy it
+                bullet.move(0, -2 * bullet.speed * dt());
+                if (bullet.pos.y < 0) {
                     destroy(bullet);
                     console.log("Bullet destroyed");
                 }
             });
 
-            bullet.on("destroy", () => { // Event handler for bullet destruction
-                bulletOnScreen = false; // Set to false when bullet gets destroyed
+            bullet.on("destroy", () => {
+                bulletOnScreen = false;
             });
 
             let shaking = false;
 
             function resetShake() {
                 shaking = false;
-                camPos(800, 387.5); // Reset camera position to its original position
+                camPos(800, 387.5);
             }
 
 
-            onCollide("bullet", "invader", (bullet, invader) => { // Collision detection with invaders
-                destroy(bullet); // Destroy bullet
-                bulletOnScreen = false;
-                invader.exploded = true;
-                invader.use(sprite("invader_explosion"));
-            
-                if (!shaking) { // Check if shake is not already active
-                    resetShake(); // Reset any existing shake effect
-                    shaking = true; // Set shaking to true to indicate shake is active
-                    shake(4); // Apply new shake effect
+            onCollide("bullet", "invader", (bullet, invader) => {
+                if (!shaking) {
+                    resetShake();
+                    shaking = true;
+                    shake(4);
                 }
 
-                wait(0.1, () => {
-                    destroy(invader); // Destroy the invader after 1 second
-                });
-            });
-            
+                if (!invader.exploded) {
+                    destroy(bullet);
+                    bulletOnScreen = false;
+
+                    remainingInvaders--;
+                    console.log(remainingInvaders);
+
+                    score += 5;
+                    scoreLabel.text = "Score: " + score;
+
+                    console.log("Invader-Row" + invader.row + "-----" + "Invader-Col" + invader.col);
+
+                    invader.exploded = true;
+                    invader.use(sprite("invader_explosion"));
+
+                    wait(0.1, () => {
+                        destroy(invader);
+                    });
+                }
+            });    
         }
 
         function changeInvaderSprites() {
@@ -206,6 +227,8 @@ document.addEventListener("DOMContentLoaded", function () {
                 for (let col = 0; col < INVADER_COLS; col++) {
                     const x = col * BLOCK_WIDTH * 2 + OFFSET_X + offsetX;
                     const y = row * BLOCK_HEIGHT + OFFSET_Y;
+                    console.log("X Position: " + x);
+                    console.log("Y Position: " + y);
                     const invader = add([
                         pos(x, y),
                         sprite(invaderSprite),
@@ -254,16 +277,22 @@ document.addEventListener("DOMContentLoaded", function () {
             if (pause) return;
         
             invaderMoveTimer += dt();
-        
-            // Adjust the invader speed by controlling the move interval
-             // Lower value means faster speed
 
             if (invaderMoveTimer >= INVADER_MOVE_THRESHOLD) {
-                invaderMoveTimer -= INVADER_MOVE_THRESHOLD; // Reset timer
+                invaderMoveTimer -= INVADER_MOVE_THRESHOLD;
 
                 const invaders = get("invader");
+                let maxRow = 0;
+
                 for (const invader of invaders) {
                     invader.move(invaderDirection * INVADER_SPEED, 0);
+
+                    let invader_row = invader.row + 1;
+
+                    if (invader_row > maxRow) {
+                        maxRow = invader_row;
+                        console.log("Max Row is: " + maxRow);
+                    }
                 }
         
                 invaderMoveCounter++;
@@ -291,11 +320,37 @@ document.addEventListener("DOMContentLoaded", function () {
                     invader.moveBy(0, BLOCK_HEIGHT);
                 }
             }
+
+            if (remainingInvaders === 0) {
+                
+                const invaders = get("invader");
+                for (const invader of invaders) {
+                    destroy(invader);
+                    invaderDirection = 1;
+                    invaderMoveCounter = 0;
+                    invaderRowsMoved = 0;
+                    INVADER_MOVE_THRESHOLD -= 0.025;
+                    console.log("THRESHOLD auf " + INVADER_MOVE_THRESHOLD)
+                }
+    
+                spawnInvaders();
+    
+                remainingInvaders = INVADER_ROWS * INVADER_COLS;
+            }
+
         });
     });
 
     scene("gameOver", (score) => {
-        // Scene Code
+        add([
+            text("Game Over", {
+                size: 80,
+                width: width(),
+                textAlign: "center",
+                color: rgb(1, 0, 0),
+            }),
+            pos(canvas.width / 2 - 190, canvas.height / 2 - 80),
+        ]);
     });
 
     go("game");
