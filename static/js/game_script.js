@@ -7,12 +7,13 @@ document.addEventListener("DOMContentLoaded", function () {
     const OFFSET_X = 70;
     const OFFSET_Y = 50;
 
-    const INVADER_SPEED = 1100;
     INVADER_MOVE_THRESHOLD = 0.5;
+
+    INVADER_SPEED = 1100
     
-    const INVADER_STEPS = 24;
+    INVADER_STEPS = 24;
     //24
-    const INVADER_ROWS_MOVE = 5;
+    INVADER_ROWS_MOVE = 5;
 
     const PLAYER_MOVE_SPEED = 250;
     const SCREEN_EDGE = 2;
@@ -44,6 +45,7 @@ document.addEventListener("DOMContentLoaded", function () {
         canvas.width = canvasWidth;
         canvas.height = canvasHeight;
     }
+
 
     calculateCanvasSize();
     window.addEventListener('resize', calculateCanvasSize);
@@ -265,6 +267,39 @@ document.addEventListener("DOMContentLoaded", function () {
             }
         });
 
+        function getLowestRow() {
+            let lowestRow = -Infinity;
+            const invaders = get("invader");
+            
+            for (const invader of invaders) {
+                // Get the row of the current invader
+                const row = invader.row;
+                
+                // Update the lowestRow if the current invader's row is lower
+                if (row > lowestRow) {
+                    lowestRow = row;
+                }
+            }
+            
+            console.log("lowest Row is: " + lowestRow);
+            return lowestRow;
+        }
+
+        function checkInvadersDestroyedInRow(row) {
+            const invaders = get("invader");
+        
+            for (const invader of invaders) {
+                if (invader.row === row && !invader.exploded) {
+                    // If an invader in the specified row is found and not exploded, return false
+                    return false;
+                }
+            }
+        
+            // If no invader in the specified row is found or all are exploded, return true
+            return true;
+        }
+
+
         let invaderDirection = 1;
         let invaderMoveCounter = 0;
         let invaderRowsMoved = 0;
@@ -305,6 +340,14 @@ document.addEventListener("DOMContentLoaded", function () {
             if (remainingInvaders === 0) {
                 resetInvaders();
             }
+
+            lowest_row = getLowestRow()
+
+            if (checkInvadersDestroyedInRow(lowest_row) == true) {
+                INVADER_ROWS_MOVE++;
+                console.log("INVADER_ROWS_MOVE ist: ", INVADER_ROWS_MOVE);
+            }
+
         });
 
         function moveInvadersDown() {
