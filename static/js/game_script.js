@@ -340,6 +340,23 @@ document.addEventListener("DOMContentLoaded", function () {
             }),
             pos(canvas.width / 2 - 190, canvas.height / 2 - 80),
         ]);
+    
+        // Send the score to the backend to save
+        fetch('/save_score', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ score: score })
+        }).then(response => {
+            if (response.ok) {
+                console.log('Score saved successfully');
+            } else {
+                console.error('Failed to save score');
+            }
+        }).catch(error => {
+            console.error('Error saving score:', error);
+        });
     });
 
     go("game");
