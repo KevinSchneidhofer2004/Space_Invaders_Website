@@ -8,17 +8,17 @@ document.addEventListener("DOMContentLoaded", function () {
     const OFFSET_Y = 50;
 
     const INVADER_SPEED = 1100;
-
-    INVADER_MOVE_THRESHOLD = 0.5;
-    //1100
-    const INVADER_STEPS = 25;
-    //26
-    INVADER_ROWS_MOVE = 5;
+    INVADER_MOVE_THRESHOLD = 1;
+    
+    const INVADER_STEPS = 24;
+    //24
+    const INVADER_ROWS_MOVE = 5;
 
     const PLAYER_MOVE_SPEED = 250;
     const SCREEN_EDGE = 2;
 
-    const BULLET_SPEED = 14000;
+    const GUN_COOLDOWN_TIME = 1;
+    const BULLET_SPEED = 12000;
     // 30000
 
     const highscoresDiv = document.getElementById("highscores");
@@ -60,6 +60,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
     scene("game", () => {
 
+        let lastShootTime = 0;
+
         const player = add([
             sprite("player"),
             scale(2),
@@ -92,18 +94,20 @@ document.addEventListener("DOMContentLoaded", function () {
         let pause = false;
         let bulletOnScreen = false;
 
+        // Function to shoot bullets
         onKeyPress("space", () => {
             if (pause) return;
-            if (!bulletOnScreen) {
+            if (!bulletOnScreen) { // Check if there's no bullet on the screen
                 const bulletPosition = {
                     x: player.pos.x + 10,
                     y: player.pos.y
                 };
                 spawnBullet(bulletPosition, -1, "bullet");
-                bulletOnScreen = true;
+                bulletOnScreen = true; // Set to true when bullet is fired
             }
         });
 
+        // Function to spawn bullets
         function spawnBullet(bulletPos, direction, tag) {
             const bullet = add([
                 rect(4, 12),
@@ -227,8 +231,6 @@ document.addEventListener("DOMContentLoaded", function () {
                 for (let col = 0; col < INVADER_COLS; col++) {
                     const x = col * BLOCK_WIDTH * 2 + OFFSET_X + offsetX;
                     const y = row * BLOCK_HEIGHT + OFFSET_Y;
-                    console.log("X Position: " + x);
-                    console.log("Y Position: " + y);
                     const invader = add([
                         pos(x, y),
                         sprite(invaderSprite),
@@ -239,12 +241,8 @@ document.addEventListener("DOMContentLoaded", function () {
                             row: row,
                             col: col,
                             spriteName: invaderSprite,
-                            exploded: false,
                         },
                     ]);
-                    console.log(invader.pos)
-                    const camPosition = camPos();
-                    console.log("Camera position:", camPosition);
                     console.log(invaderSprite)
                 }
             }
@@ -277,32 +275,21 @@ document.addEventListener("DOMContentLoaded", function () {
             if (pause) return;
         
             invaderMoveTimer += dt();
-
+        
             if (invaderMoveTimer >= INVADER_MOVE_THRESHOLD) {
-                invaderMoveTimer -= INVADER_MOVE_THRESHOLD;
-
+                invaderMoveTimer = 0;
+        
                 const invaders = get("invader");
-                let maxRow = 0;
-
                 for (const invader of invaders) {
                     invader.move(invaderDirection * INVADER_SPEED, 0);
-
-                    let invader_row = invader.row + 1;
-
-                    if (invader_row > maxRow) {
-                        maxRow = invader_row;
-                    }
                 }
-
-                INVADER_ROWS_MOVE = 5 + (5 - maxRow);
-                console.log("Max Row is: " + maxRow);
-                console.log("INVADER_ROWS_MOVE: " + INVADER_ROWS_MOVE);
         
                 invaderMoveCounter++;
         
                 if (invaderMoveCounter > INVADER_STEPS) {
                     invaderDirection = invaderDirection * -1;
                     invaderMoveCounter = 0;
+                    // Change the direction first before moving invaders down
                     moveInvadersDown();
                 }
         
@@ -323,24 +310,23 @@ document.addEventListener("DOMContentLoaded", function () {
                     invader.moveBy(0, BLOCK_HEIGHT);
                 }
             }
-
+        
             if (remainingInvaders === 0) {
-                
+        
                 const invaders = get("invader");
                 for (const invader of invaders) {
                     destroy(invader);
                     invaderDirection = 1;
                     invaderMoveCounter = 0;
                     invaderRowsMoved = 0;
-                    INVADER_MOVE_THRESHOLD -= 0.025;
+                    INVADER_MOVE_THRESHOLD -= 0.2;
                     console.log("THRESHOLD auf " + INVADER_MOVE_THRESHOLD)
                 }
-    
+        
                 spawnInvaders();
-    
+        
                 remainingInvaders = INVADER_ROWS * INVADER_COLS;
             }
-
         });
     });
 
