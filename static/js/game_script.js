@@ -19,6 +19,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
     const GUN_COOLDOWN_TIME = 1;
     const BULLET_SPEED = 12000;
+    const GUN_COOLDOWN_TIME = 1;
+    const BULLET_SPEED = 12000;
     // 30000
 
     const highscoresDiv = document.getElementById("highscores");
@@ -45,6 +47,7 @@ document.addEventListener("DOMContentLoaded", function () {
         canvas.height = canvasHeight;
     }
 
+
     calculateCanvasSize();
     window.addEventListener('resize', calculateCanvasSize);
 
@@ -59,6 +62,8 @@ document.addEventListener("DOMContentLoaded", function () {
     loadSprite("invader_explosion", "/invaders/space__0009_EnemyExplosion.png")
 
     scene("game", () => {
+
+        let lastShootTime = 0;
 
         let lastShootTime = 0;
 
@@ -95,18 +100,21 @@ document.addEventListener("DOMContentLoaded", function () {
         let bulletOnScreen = false;
 
         // Function to shoot bullets
+        // Function to shoot bullets
         onKeyPress("space", () => {
             if (pause) return;
+            if (!bulletOnScreen) { // Check if there's no bullet on the screen
             if (!bulletOnScreen) { // Check if there's no bullet on the screen
                 const bulletPosition = {
                     x: player.pos.x + 10,
                     y: player.pos.y
                 };
                 spawnBullet(bulletPosition, -1, "bullet");
-                bulletOnScreen = true; // Set to true when bullet is fired
+                bulletOnScreen = true; // Set to true when bullet is fired // Set to true when bullet is fired
             }
         });
 
+        // Function to spawn bullets
         // Function to spawn bullets
         function spawnBullet(bulletPos, direction, tag) {
             const bullet = add([
@@ -265,6 +273,39 @@ document.addEventListener("DOMContentLoaded", function () {
             }
         });
 
+        function getLowestRow() {
+            let lowestRow = -Infinity;
+            const invaders = get("invader");
+            
+            for (const invader of invaders) {
+                // Get the row of the current invader
+                const row = invader.row;
+                
+                // Update the lowestRow if the current invader's row is lower
+                if (row > lowestRow) {
+                    lowestRow = row;
+                }
+            }
+            
+            console.log("lowest Row is: " + lowestRow);
+            return lowestRow;
+        }
+
+        function checkInvadersDestroyedInRow(row) {
+            const invaders = get("invader");
+        
+            for (const invader of invaders) {
+                if (invader.row === row && !invader.exploded) {
+                    // If an invader in the specified row is found and not exploded, return false
+                    return false;
+                }
+            }
+        
+            // If no invader in the specified row is found or all are exploded, return true
+            return true;
+        }
+
+
         let invaderDirection = 1;
         let invaderMoveCounter = 0;
         let invaderRowsMoved = 0;
@@ -273,8 +314,12 @@ document.addEventListener("DOMContentLoaded", function () {
 
         onUpdate(() => {
             if (pause) return;
-        
+
             invaderMoveTimer += dt();
+
+            if (invaderMoveTimer >= 1) {
+                invaderMoveTimer = 0;
+
         
             if (invaderMoveTimer >= INVADER_MOVE_THRESHOLD) {
                 invaderMoveTimer = 0;
@@ -283,18 +328,20 @@ document.addEventListener("DOMContentLoaded", function () {
                 for (const invader of invaders) {
                     invader.move(invaderDirection * INVADER_SPEED, 0);
                 }
+
+                }
         
                 invaderMoveCounter++;
-        
+
                 if (invaderMoveCounter > INVADER_STEPS) {
                     invaderDirection = invaderDirection * -1;
                     invaderMoveCounter = 0;
                     // Change the direction first before moving invaders down
                     moveInvadersDown();
                 }
-        
+
                 changeInvaderSprites();
-        
+
                 if (invaderRowsMoved > INVADER_ROWS_MOVE) {
                     pause = true;
                     wait(2, () => {
@@ -302,6 +349,41 @@ document.addEventListener("DOMContentLoaded", function () {
                     });
                 }
             }
+
+            if (remainingInvaders === 0) {
+                resetInvaders();
+            }
+
+            lowest_row = getLowestRow()
+
+            if (checkInvadersDestroyedInRow(lowest_row) == true) {
+                INVADER_ROWS_MOVE++;
+                console.log("INVADER_ROWS_MOVE ist: ", INVADER_ROWS_MOVE);
+            }
+
+        });
+
+        function moveInvadersDown() {
+            const invaders = get("invader");
+            for (const invader of invaders) {
+                invader.moveBy(0, BLOCK_HEIGHT);
+            }
+            invaderRowsMoved++;
+        }
+
+        function resetInvaders() {
+            const invaders = get("invader");
+            for (const invader of invaders) {
+                destroy(invader);
+            }
+            invaderDirection = 1;
+            invaderMoveCounter = 0;
+            invaderRowsMoved = 0;
+            INVADER_MOVE_THRESHOLD -= 0.025;
+            console.log("THRESHOLD auf " + INVADER_MOVE_THRESHOLD);
+            spawnInvaders();
+            remainingInvaders = INVADER_ROWS * INVADER_COLS;
+        }
         
             function moveInvadersDown() {
                 invaderRowsMoved++;
