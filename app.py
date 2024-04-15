@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for, session, make_response
+from flask import Flask, jsonify, render_template, request, redirect, url_for, session, make_response
 from models import db, User, Score
 from werkzeug.security import generate_password_hash, check_password_hash
 
@@ -72,10 +72,8 @@ def game():
 @app.route('/save_score', methods=['POST'])
 def save_score():
     if request.method == 'POST':
-        # Check the JSON data sent in the request
         print(request.json)
-        
-        # Check if the 'score' key exists in the JSON data
+
         if 'score' in request.json:
             score_value = int(request.json['score'])
             user_id = session.get('user_id')
@@ -86,15 +84,22 @@ def save_score():
                 db.session.add(new_score)
                 db.session.commit()
 
+                user.latest_score_id = new_score.id
+                db.session.commit()
+
                 if not user.highest_score or score_value > user.highest_score.score:
                     user.highest_score = new_score
                     db.session.commit()
 
             return redirect(url_for('game'))
         else:
-            # If 'score' key is missing, return a suitable response
             return "Score data missing", 400
 
+@app.route('/highscores')
+def highscores():
+    top_scores = Score.query.order_by(Score.score.desc()).limit(10).all()
+    scores_data = [{'user': score.user.username, 'score': score.score} for score in top_scores]
+    return jsonify(scores_data)
 
 
 if __name__ == '__main__':

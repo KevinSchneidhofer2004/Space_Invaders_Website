@@ -11,14 +11,14 @@
             margin: 0;
             padding: 0;
             height: 100%;
-            overflow: hidden; /* Prevent scrolling */
+            overflow: hidden;
         }
         .navbar {
             background-color: #333;
             color: #fff;
             text-align: center;
             line-height: 50px;
-            box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.2); /* Add shadow for depth */
+            box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.2);
         }
         .container {
             display: flex;
@@ -26,8 +26,8 @@
             height: 100%;
         }
         #game-canvas {
-            flex: 1; /* Fill remaining space */
-            background-color: #ff0000; /* Red background */
+            flex: 1;
+            background-color: #ff0000;
         }
         .highscores {
             width: 200px;
@@ -35,20 +35,26 @@
             color: white;
             text-align: center;
             padding: 10px;
-            overflow-y: auto; /* Enable scrolling if needed */
+            overflow-y: hidden;
         }
         .highscores h2 {
             margin-top: 0;
+            font-size: 2rem;
         }
         .highscores ul {
             list-style: none;
             padding: 0;
             margin: 0;
-            max-height: calc(100% - 20px); /* Limit max height to 100% minus padding */
-            overflow-y: auto; /* Enable scrolling if needed */
+            overflow-y: hidden;
         }
         .highscores ul li {
             margin-bottom: 10px;
+            font-size: 1.2rem;
+            text-align: left;
+            padding-left: 10px;
+            height: 50px;
+            line-height: 60px;
+            transition: height 0.3s ease;
         }
     </style>
 </head>
@@ -61,9 +67,33 @@
         <div class="highscores" id="highscores">
             <h2>High Scores</h2>
             <ul id="highscore-list">
-                <li>No high scores yet.</li>
+                <!-- High scores space -->
             </ul>
         </div>
     </div>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const highscoreList = document.getElementById("highscore-list");
+
+            function fetchHighscores() {
+                fetch('/highscores')
+                    .then(response => response.json())
+                    .then(scores => {
+                        highscoreList.innerHTML = '';
+                        scores.forEach((score, index) => {
+                            const listItem = document.createElement('li');
+                            listItem.textContent = `${index + 1}. ${score.user}: ${score.score}`;
+                            highscoreList.appendChild(listItem);
+                            setTimeout(() => {
+                                listItem.style.height = `${listItem.scrollHeight}px`;
+                            }, 10);
+                        });
+                    })
+                    .catch(error => console.error('Error fetching high scores:', error));
+            }
+
+            fetchHighscores();
+        });
+    </script>
 </body>
 </html>

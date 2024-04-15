@@ -8,7 +8,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const OFFSET_Y = 50;
 
     const INVADER_SPEED = 1100;
-    INVADER_MOVE_THRESHOLD = 0.1;
+    INVADER_MOVE_THRESHOLD = 1;
     
     const INVADER_STEPS = 24;
     //24
@@ -340,14 +340,34 @@ document.addEventListener("DOMContentLoaded", function () {
             }),
             pos(canvas.width / 2 - 190, canvas.height / 2 - 80),
         ]);
+
+        add([
+            rect(200, 40),
+            color(0, 0, 0),
+            pos(canvas.width / 2 - 100, canvas.height / 2 + 20),
+        ]);
+
+        const retryText = add([
+            text("Retry", {
+                size: 35,
+                textAlign: "center",
+                color: rgb(255, 255, 255),
+            }),
+            pos(canvas.width / 2 - 50, canvas.height / 2 + 10),
+            area(),
+        ]);
+
+        retryText.onMousePress(() => {
+            go("game");
+          });
+
     
-        // Send the score to the backend to save
         fetch('/save_score', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({ score: score }) // Ensure 'score' is sent with the correct key
+            body: JSON.stringify({ score: score })
         }).then(response => {
             if (response.ok) {
                 console.log('Score saved successfully');
