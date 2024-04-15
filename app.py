@@ -72,20 +72,30 @@ def game():
 @app.route('/save_score', methods=['POST'])
 def save_score():
     if request.method == 'POST':
-        score_value = int(request.form['score'])
-        user_id = session.get('user_id')
-        if user_id:
-            user = User.query.get(user_id)
+        # Check the JSON data sent in the request
+        print(request.json)
+        
+        # Check if the 'score' key exists in the JSON data
+        if 'score' in request.json:
+            score_value = int(request.json['score'])
+            user_id = session.get('user_id')
+            if user_id:
+                user = User.query.get(user_id)
 
-            new_score = Score(score=score_value, user=user)
-            db.session.add(new_score)
-            db.session.commit()
-
-            if not user.highest_score or score_value > user.highest_score.score:
-                user.highest_score = new_score
+                new_score = Score(score=score_value, user=user)
+                db.session.add(new_score)
                 db.session.commit()
 
-        return redirect(url_for('game'))
+                if not user.highest_score or score_value > user.highest_score.score:
+                    user.highest_score = new_score
+                    db.session.commit()
+
+            return redirect(url_for('game'))
+        else:
+            # If 'score' key is missing, return a suitable response
+            return "Score data missing", 400
+
+
 
 if __name__ == '__main__':
     app.run(debug=True)

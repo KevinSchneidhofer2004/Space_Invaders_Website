@@ -1,4 +1,4 @@
-import datetime
+from datetime import datetime
 from flask_sqlalchemy import SQLAlchemy
 
 db = SQLAlchemy()
@@ -17,7 +17,7 @@ class User(db.Model):
 class Score(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     score = db.Column(db.Integer)
-    date_time = db.Column(db.DateTime, default=datetime.utcnow)
+    date_time = db.Column(db.DateTime, default=datetime.utcnow())
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
 
     user = db.relationship("User", foreign_keys=[user_id])

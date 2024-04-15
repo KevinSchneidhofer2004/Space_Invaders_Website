@@ -8,7 +8,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const OFFSET_Y = 50;
 
     const INVADER_SPEED = 1100;
-    INVADER_MOVE_THRESHOLD = 1;
+    INVADER_MOVE_THRESHOLD = 0.1;
     
     const INVADER_STEPS = 24;
     //24
@@ -298,7 +298,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 if (invaderRowsMoved > INVADER_ROWS_MOVE) {
                     pause = true;
                     wait(2, () => {
-                        go("gameOver", player.score);
+                        go("gameOver", score);
                     });
                 }
             }
@@ -347,7 +347,7 @@ document.addEventListener("DOMContentLoaded", function () {
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({ score: score })
+            body: JSON.stringify({ score: score }) // Ensure 'score' is sent with the correct key
         }).then(response => {
             if (response.ok) {
                 console.log('Score saved successfully');
