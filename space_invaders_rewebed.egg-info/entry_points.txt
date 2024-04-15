@@ -1,0 +1,2 @@
+[console_scripts]
+run_space_invaders_rewebed = app:main

@@ -1,0 +1,7 @@
+setup.py
+space_invaders_rewebed.egg-info/PKG-INFO
+space_invaders_rewebed.egg-info/SOURCES.txt
+space_invaders_rewebed.egg-info/dependency_links.txt
+space_invaders_rewebed.egg-info/entry_points.txt
+space_invaders_rewebed.egg-info/requires.txt
+space_invaders_rewebed.egg-info/top_level.txt
