@@ -6,10 +6,9 @@ document.addEventListener("DOMContentLoaded", function () {
     const BLOCK_WIDTH = 32;
     const OFFSET_X = 70;
     const OFFSET_Y = 50;
-
-    const INVADER_SPEED = 1100;
     
     const INVADER_STEPS = 24;
+    const INVADER_TRAVEL_DISTANCE = 1100;
     //24
     INVADER_ROWS_MOVE = 5;
 
@@ -26,6 +25,9 @@ document.addEventListener("DOMContentLoaded", function () {
 
     let score = 0;
     let remainingInvaders = INVADER_ROWS * INVADER_COLS;
+
+    let leftDirectionSteps = INVADER_STEPS;
+    let rightDirectionSteps = INVADER_STEPS;
 
     kaboom({
         background: [0, 0, 0],
@@ -60,8 +62,6 @@ document.addEventListener("DOMContentLoaded", function () {
     scene("game", () => {
 
         INVADER_MOVE_THRESHOLD = 1;
-
-        let lastShootTime = 0;
 
         const player = add([
             sprite("player"),
@@ -140,6 +140,8 @@ document.addEventListener("DOMContentLoaded", function () {
             }
 
             let totalRows = 4;
+            let minimumCols = 0;
+            let maximumCols = 10;
 
             onCollide("bullet", "invader", (bullet, invader) => {
                 if (!shaking) {
@@ -174,6 +176,31 @@ document.addEventListener("DOMContentLoaded", function () {
                     else {
                         console.log("Noch Invaders in Reihe: " + totalRows);
                     }
+
+                    if (checkColumnStatus(minimumCols) == true) {
+                        console.log("Alle Invader in äußerster linken Col zerstört: " + minimumCols);
+                        minimumCols++;
+                        console.log("minimumCols sind jetzt: " + minimumCols);
+                        leftDirectionSteps++;
+                        console.log("Schritte nach links sind jetzt: " + leftDirectionSteps);
+
+                    }
+                    else {
+                        console.log("Noch Invaders in linkester Column: " + minimumCols);
+                    }
+
+                    if (checkColumnStatus(maximumCols) == true) {
+                        console.log("Alle Invader in äußerster rechten Col zerstört: " + maximumCols);
+                        maximumCols--;
+                        console.log("maximumCols sind jetzt: " + maximumCols);
+                        rightDirectionSteps++;
+                        console.log("Schritte nach rechts sind jetzt: " + rightDirectionSteps);
+                    }
+                    else {
+                        console.log("Noch Invaders in rechtester Column: " + maximumCols);
+                    }
+
+                    
 
                     wait(0.1, () => {
                         destroy(invader);
@@ -220,6 +247,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
         function spawnInvaders() {
             totalRows = 4;
+            minimumCols = 0;
+            maximumCols = 10;
             INVADER_ROWS_MOVE = 5;
 
             for (let row = 0; row < INVADER_ROWS; row++) {
@@ -273,6 +302,15 @@ document.addEventListener("DOMContentLoaded", function () {
             return true;
         }
 
+        function checkColumnStatus(colNum) {
+            const invadersInRow = get("invader").filter(invader => invader.col === colNum);
+            for (const invader of invadersInRow) {
+                if (!invader.exploded) {
+                    return false;
+                }
+            }
+            return true;
+        }
 
         onKeyDown("left", () => {
             if (pause) return;
@@ -294,6 +332,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
         let invaderMoveTimer = 0;
 
+        let invader_steps = INVADER_STEPS;
+
         onUpdate(() => {
             if (pause) return;
         
@@ -304,16 +344,31 @@ document.addEventListener("DOMContentLoaded", function () {
         
                 const invaders = get("invader");
                 for (const invader of invaders) {
-                    invader.move(invaderDirection * INVADER_SPEED, 0);
+                    invader.move(invaderDirection * INVADER_TRAVEL_DISTANCE, 0);
                 }
-        
-                invaderMoveCounter++;
-        
-                if (invaderMoveCounter > INVADER_STEPS) {
+
+                if (invaderDirection == 1) {
+                    invader_steps = rightDirectionSteps;
+                    console.log("Rechte Schritte: " + rightDirectionSteps);
+                }
+
+                if (invaderDirection == -1) {
+                    invader_steps = leftDirectionSteps;
+                    console.log("Linke Schritte: " + leftDirectionSteps);
+                }
+
+                console.log("Invadersteps are: " + invader_steps);
+
+                if (invaderMoveCounter >= invader_steps) {
                     invaderDirection = invaderDirection * -1;
                     invaderMoveCounter = 0;
                     moveInvadersDown();
                 }
+        
+                invaderMoveCounter++;
+
+                console.log("InvaderMoveCounter ist derzeit: " + invaderMoveCounter);
+                console.log("invaderSteps ist derzeit: " + invader_steps);
         
                 changeInvaderSprites();
         
