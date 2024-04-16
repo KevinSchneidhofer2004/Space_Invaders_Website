@@ -7,70 +7,71 @@
     <script src="https://unpkg.com/kaboom@3000/dist/kaboom.js"></script>
     <script src="/static/js/game_script.js"></script>
     <style>
+        @font-face {
+            font-family: 'Noto Sans Display';
+            font-style: normal;
+            font-weight: 400;
+            src: url(/static/fonts/NotoSansDisplay-Regular.ttf);
+        }
+
         body, html {
             margin: 0;
             padding: 0;
             height: 100%;
             overflow: hidden;
+            background-color: #111;
         }
+        
         .navbar {
             /* background-color: #1d1d1d; */
             background-color: #6d0202;
+            background: url('/static/res/background_abstract.jpg');
             background-size: cover;
             color: #ffffff;
             text-align: center;
             line-height: 50px;
-            box-shadow: 0px 2px 4px rgba(173, 173, 173, 0.2);
+            /* box-shadow: 0px 2px 4px rgba(173, 173, 173, 0.2);
             border-top: 2px solid #ffffff;
-            border-left: 2px solid #ffffff;
-            border-bottom: 2px solid #ffffff;
+            border-bottom: 2px solid #ffffff; */
         }
         .container {
             display: flex;
             flex-direction: row;
             height: 100%;
+            position: relative;
         }
         #game-canvas {
             flex: 1;
-            background-color: #ff0000;
+            background-color:#111;
         }
         .highscores {
             position: relative; /* Position the pseudo-element relative to this element */
             width: 200px;
-            background: url('/static/res/space_invaders.jpg');
             background-size: auto;
-            color: rgb(255, 255, 255);
             text-align: center;
             padding: 10px;
             overflow-y: hidden;
-            /* border-radius: 20px; */
             border-left: 3px solid #ffffff;
+            background: #111;
+            /* background: url('/static/res/crt_tv.png');
+            background-size: 100%; */
+            font-family: Noto Sans Display;
+            color: #eee;
+            font-size: 1em;
+            line-height: 1;
+            text-shadow: 0.06rem 0 0.06rem #ea36af, -0.125rem 0 0.06rem #75fa69;
+            letter-spacing: 0.125em;
+            animation-duration: 0.01s;
+            animation-name: textflicker;
+            animation-iteration-count: infinite;
+            animation-direction: alternate;
         }
 
-        .highscores::before {
-            content: ""; /* Create an empty content for the pseudo-element */
-            position: absolute; /* Position the pseudo-element absolutely */
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.7); /* Semi-transparent black overlay */
-            /* border-radius: 20px; */
-        }
-
-        .highscores-content {
-            position: relative;
-            z-index: 1; /* Ensure the text is above the pseudo-element */
-        }
         .highscores h2 {
-            margin-top: 0;
+            margin-top: 20%;
             font-size: 2rem;
-            text-shadow: 
-                -1px -1px 0 black,  
-                1px -1px 0 black,
-                -1px  1px 0 black,
-                1px  1px 0 black,
-                0 0 12px white;
+            /* text-shadow: 
+                0 0 12px white; */
         }
         .highscores ul {
             list-style: none;
@@ -85,30 +86,100 @@
 
         .highscores ul li {
             margin-bottom: 10px;
-            font-size: 1.2rem;
+            font-size: 1rem;
             text-align: left; /* Keep text left-aligned */
             padding-left: 10px; /* Add padding for left alignment */
             height: 50px;
             line-height: 60px;
             transition: height 0.3s ease;
-            text-shadow: 
-                -1px -1px 0 black,  
-                1px -1px 0 black,
-                -1px  1px 0 black,
-                1px  1px 0 black,
-                0 0 5px white;
+            /* text-shadow: 
+                0 0 5px white; */
+        }
+
+        .crt::after {
+            content: " ";
+            display: block;
+            position: absolute;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            right: 0;
+            background: rgba(18, 16, 16, 0.1);
+            opacity: 0;
+            z-index: 2;
+            pointer-events: none;
+            animation: flicker 0.15s infinite;
+        }
+        .crt::before {
+            content: " ";
+            display: block;
+            position: absolute;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            right: 0;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+            z-index: 2;
+            background-size: 100% 2px, 3px 100%;
+            pointer-events: none;
+        }
+
+        @keyframes textflicker {
+            from {
+                text-shadow: 1px 0 0 #ea36af, -2px 0 0 #75fa69;
+            }
+            to {
+                text-shadow: 2px 0.5px 2px #ea36af, -1px -0.5px 2px #75fa69;
+            }
+        }
+
+        @keyframes flicker {
+            0% {
+                opacity: 0.27861;
+            }
+            10% {
+                opacity: 0.23604;
+            }
+            20% {
+                opacity: 0.18128;
+            }
+            30% {
+                opacity: 0.65583;
+            }
+            40% {
+                opacity: 0.26559;
+            }
+            50% {
+                opacity: 0.96019;
+            }
+            60% {
+                opacity: 0.20313;
+            }
+            70% {
+                opacity: 0.53455;
+            }
+            80% {
+                opacity: 0.71428;
+            }
+            90% {
+                opacity: 0.7003;
+            }
+            100% {
+                opacity: 0.24387;
+            }
         }
     </style>
 </head>
 <body>
     <div class="navbar">
-        <h3 style="margin: 0;">Space Invaders</h3>
+        <!-- <h3 style="margin: 0;">Space Invaders</h3> -->
     </div>
     <div class="container">
+        <!-- <div class="crt"></div> -->
         <canvas id="game-canvas"></canvas>
         <div class="highscores" id="highscores">
             <div class="highscores-content">
-                <h2>High Scores</h2>
+                <h2>Highscores</h2>
                 <ul id="highscore-list">
                     <!-- High scores space -->
                 </ul>

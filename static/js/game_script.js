@@ -17,7 +17,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
     const GUN_COOLDOWN_TIME = 1;
     const BULLET_SPEED = 12000;
-    // 30000
 
     const highscoresDiv = document.getElementById("highscores");
 
@@ -30,7 +29,7 @@ document.addEventListener("DOMContentLoaded", function () {
     let rightDirectionSteps = INVADER_STEPS;
 
     kaboom({
-        background: [0, 0, 0],
+        background: [17, 17, 17],
         debug: true,
         scale: 1,
         canvas: document.getElementById('game-canvas')
