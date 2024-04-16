@@ -65,6 +65,7 @@ document.addEventListener("DOMContentLoaded", function () {
         const player = add([
             sprite("player"),
             scale(2),
+            color(238, 238, 238),
             pos(100, 600),
             area(),
             {
@@ -82,13 +83,8 @@ document.addEventListener("DOMContentLoaded", function () {
             {
                 value: score,
             },
+            color(238, 238, 238),
         ]);
-
-        onKeyPress("space", () => {
-            console.log("Space key pressed");
-            console.log("Pause status:", pause);
-            
-        });
 
         let pause = false;
         let bulletOnScreen = false;
@@ -109,7 +105,7 @@ document.addEventListener("DOMContentLoaded", function () {
             const bullet = add([
                 rect(4, 12),
                 pos(bulletPos.x + 14, bulletPos.y - 12),
-                color(255, 255, 255),
+                color(238, 238, 238),
                 area(),
                 "missile",
                 tag,
@@ -123,7 +119,6 @@ document.addEventListener("DOMContentLoaded", function () {
                 bullet.move(0, -2 * bullet.speed * dt());
                 if (bullet.pos.y < 0) {
                     destroy(bullet);
-                    console.log("Bullet destroyed");
                 }
             });
 
@@ -278,6 +273,7 @@ document.addEventListener("DOMContentLoaded", function () {
                         sprite(invaderSprite),
                         area(),
                         scale(2),
+                        color(238, 238, 238),
                         "invader",
                         {
                             row: row,
@@ -285,7 +281,6 @@ document.addEventListener("DOMContentLoaded", function () {
                             spriteName: invaderSprite,
                         },
                     ]);
-                    console.log(invaderSprite)
                 }
             }
         }
@@ -412,7 +407,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 size: 80,
                 width: width(),
                 textAlign: "center",
-                color: rgb(1, 0, 0),
+                color: rgb(238, 238, 238),
             }),
             pos(canvas.width / 2 - 190, canvas.height / 2 - 80),
         ]);
@@ -427,7 +422,7 @@ document.addEventListener("DOMContentLoaded", function () {
             text("Retry", {
                 size: 35,
                 textAlign: "center",
-                color: rgb(255, 255, 255),
+                color: rgb(238, 238, 238),
             }),
             pos(canvas.width / 2 - 50, canvas.height / 2 + 10),
             area(),
