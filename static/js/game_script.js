@@ -149,51 +149,27 @@ document.addEventListener("DOMContentLoaded", function () {
                     bulletOnScreen = false;
 
                     remainingInvaders--;
-                    console.log(remainingInvaders);
 
                     score += 5;
                     scoreLabel.text = "Score: " + score;
-
-                    console.log("Invader-Row" + invader.row + "-----" + "Invader-Col" + invader.col);
 
                     invader.exploded = true;
                     invader.use(sprite("invader_explosion"));
 
                     if (checkRowStatus(totalRows) == true) {
-                        console.log("Alle Invader zerstört in Reihe: " + totalRows);
                         totalRows--;
-                        console.log("TotalRows sind jetzt: " + totalRows);
                         INVADER_ROWS_MOVE++;
-                        console.log("INVADER_ROWS_MOVE ist jetzt geupdatet: " + INVADER_ROWS_MOVE);
-
-                    }
-                    else {
-                        console.log("Noch Invaders in Reihe: " + totalRows);
                     }
 
                     if (checkColumnStatus(minimumCols) == true) {
-                        console.log("Alle Invader in äußerster linken Col zerstört: " + minimumCols);
                         minimumCols++;
-                        console.log("minimumCols sind jetzt: " + minimumCols);
                         leftDirectionSteps++;
-                        console.log("Schritte nach links sind jetzt: " + leftDirectionSteps);
-
-                    }
-                    else {
-                        console.log("Noch Invaders in linkester Column: " + minimumCols);
                     }
 
                     if (checkColumnStatus(maximumCols) == true) {
-                        console.log("Alle Invader in äußerster rechten Col zerstört: " + maximumCols);
                         maximumCols--;
-                        console.log("maximumCols sind jetzt: " + maximumCols);
                         rightDirectionSteps++;
-                        console.log("Schritte nach rechts sind jetzt: " + rightDirectionSteps);
                     }
-                    else {
-                        console.log("Noch Invaders in rechtester Column: " + maximumCols);
-                    }
-
                     
 
                     wait(0.1, () => {
@@ -243,6 +219,8 @@ document.addEventListener("DOMContentLoaded", function () {
             totalRows = 4;
             minimumCols = 0;
             maximumCols = 10;
+            leftDirectionSteps = 24;
+            rightDirectionSteps = 24;
             INVADER_ROWS_MOVE = 5;
 
             for (let row = 0; row < INVADER_ROWS; row++) {
@@ -328,6 +306,14 @@ document.addEventListener("DOMContentLoaded", function () {
 
         let invader_steps = INVADER_STEPS;
 
+        function moveInvadersDown() {
+            invaderRowsMoved++;
+            const invaders = get("invader");
+            for (const invader of invaders) {
+                invader.moveBy(0, BLOCK_HEIGHT);
+            }
+        }
+
         onUpdate(() => {
             if (pause) return;
         
@@ -374,14 +360,6 @@ document.addEventListener("DOMContentLoaded", function () {
                 }
             }
         
-            function moveInvadersDown() {
-                invaderRowsMoved++;
-                const invaders = get("invader");
-                for (const invader of invaders) {
-                    invader.moveBy(0, BLOCK_HEIGHT);
-                }
-            }
-        
             if (remainingInvaders === 0) {
         
                 const invaders = get("invader");
@@ -415,7 +393,7 @@ document.addEventListener("DOMContentLoaded", function () {
         add([
             rect(200, 40),
             color(0, 0, 0),
-            pos(canvas.width / 2 - 100, canvas.height / 2 + 20),
+            pos(canvas.width / 2 - 100, canvas.height / 2 + 8),
         ]);
 
         const retryText = add([
