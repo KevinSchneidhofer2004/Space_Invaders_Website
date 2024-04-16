@@ -8,11 +8,10 @@ document.addEventListener("DOMContentLoaded", function () {
     const OFFSET_Y = 50;
 
     const INVADER_SPEED = 1100;
-    INVADER_MOVE_THRESHOLD = 1;
     
     const INVADER_STEPS = 24;
     //24
-    const INVADER_ROWS_MOVE = 5;
+    INVADER_ROWS_MOVE = 5;
 
     const PLAYER_MOVE_SPEED = 250;
     const SCREEN_EDGE = 2;
@@ -60,12 +59,13 @@ document.addEventListener("DOMContentLoaded", function () {
 
     scene("game", () => {
 
+        INVADER_MOVE_THRESHOLD = 1;
+
         let lastShootTime = 0;
 
         const player = add([
             sprite("player"),
             scale(2),
-            //origin("center"),
             pos(100, 600),
             area(),
             {
@@ -94,20 +94,18 @@ document.addEventListener("DOMContentLoaded", function () {
         let pause = false;
         let bulletOnScreen = false;
 
-        // Function to shoot bullets
         onKeyPress("space", () => {
             if (pause) return;
-            if (!bulletOnScreen) { // Check if there's no bullet on the screen
+            if (!bulletOnScreen) {
                 const bulletPosition = {
                     x: player.pos.x + 10,
                     y: player.pos.y
                 };
                 spawnBullet(bulletPosition, -1, "bullet");
-                bulletOnScreen = true; // Set to true when bullet is fired
+                bulletOnScreen = true;
             }
         });
 
-        // Function to spawn bullets
         function spawnBullet(bulletPos, direction, tag) {
             const bullet = add([
                 rect(4, 12),
@@ -141,6 +139,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 camPos(800, 387.5);
             }
 
+            let totalRows = 4;
 
             onCollide("bullet", "invader", (bullet, invader) => {
                 if (!shaking) {
@@ -163,6 +162,18 @@ document.addEventListener("DOMContentLoaded", function () {
 
                     invader.exploded = true;
                     invader.use(sprite("invader_explosion"));
+
+                    if (checkRowStatus(totalRows) == true) {
+                        console.log("Alle Invader zerstört in Reihe: " + totalRows);
+                        totalRows--;
+                        console.log("TotalRows sind jetzt: " + totalRows);
+                        INVADER_ROWS_MOVE++;
+                        console.log("INVADER_ROWS_MOVE ist jetzt geupdatet: " + INVADER_ROWS_MOVE);
+
+                    }
+                    else {
+                        console.log("Noch Invaders in Reihe: " + totalRows);
+                    }
 
                     wait(0.1, () => {
                         destroy(invader);
@@ -208,6 +219,9 @@ document.addEventListener("DOMContentLoaded", function () {
         let invaderMap = [];
 
         function spawnInvaders() {
+            totalRows = 4;
+            INVADER_ROWS_MOVE = 5;
+
             for (let row = 0; row < INVADER_ROWS; row++) {
                 invaderMap[row] = [];
                 let invaderSprite, offsetX = 0, offsetY = 0;
@@ -249,6 +263,16 @@ document.addEventListener("DOMContentLoaded", function () {
         }
         spawnInvaders();
 
+        function checkRowStatus(rowNum) {
+            const invadersInRow = get("invader").filter(invader => invader.row === rowNum);
+            for (const invader of invadersInRow) {
+                if (!invader.exploded) {
+                    return false;
+                }
+            }
+            return true;
+        }
+
 
         onKeyDown("left", () => {
             if (pause) return;
@@ -260,7 +284,6 @@ document.addEventListener("DOMContentLoaded", function () {
         onKeyDown("right", () => {
             if (pause) return;
             if (player.pos.x <= canvas.width - highscoresDivWidth + 168) {
-                // canvas.width - width vom div das den score anzeigt
                 player.move(PLAYER_MOVE_SPEED, 0);
             }
         });
@@ -289,7 +312,6 @@ document.addEventListener("DOMContentLoaded", function () {
                 if (invaderMoveCounter > INVADER_STEPS) {
                     invaderDirection = invaderDirection * -1;
                     invaderMoveCounter = 0;
-                    // Change the direction first before moving invaders down
                     moveInvadersDown();
                 }
         
