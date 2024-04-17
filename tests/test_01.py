@@ -3,8 +3,10 @@ import sys
 import os
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'app')))
 
-from app import create_app
+
+from app.app import create_app
 
 class TestFlaskApp(unittest.TestCase):
     def setUp(self):

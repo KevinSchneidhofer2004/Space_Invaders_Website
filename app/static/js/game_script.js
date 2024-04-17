@@ -319,39 +319,33 @@ document.addEventListener("DOMContentLoaded", function () {
         
             invaderMoveTimer += dt();
         
+            // Calculate movement distance based on desired speed and delta time
+            const invaderMoveSpeed = INVADER_TRAVEL_DISTANCE / INVADER_STEPS;
+            const invaderMoveDistance = invaderMoveSpeed * dt() + 1100;
+        
             if (invaderMoveTimer >= INVADER_MOVE_THRESHOLD) {
                 invaderMoveTimer = 0;
         
                 const invaders = get("invader");
                 for (const invader of invaders) {
-                    invader.move(invaderDirection * INVADER_TRAVEL_DISTANCE, 0);
+                    // Move each invader by the calculated distance and direction
+                    invader.move(invaderDirection * invaderMoveDistance, 0);
                 }
-
-                if (invaderDirection == 1) {
-                    invader_steps = rightDirectionSteps;
-                    console.log("Rechte Schritte: " + rightDirectionSteps);
-                }
-
-                if (invaderDirection == -1) {
-                    invader_steps = leftDirectionSteps;
-                    console.log("Linke Schritte: " + leftDirectionSteps);
-                }
-
-                console.log("Invadersteps are: " + invader_steps);
-
+        
+                // Check if it's time to change direction
                 if (invaderMoveCounter >= invader_steps) {
-                    invaderDirection = invaderDirection * -1;
+                    // Change direction and reset counter
+                    invaderDirection *= -1;
                     invaderMoveCounter = 0;
                     moveInvadersDown();
                 }
         
                 invaderMoveCounter++;
-
-                console.log("InvaderMoveCounter ist derzeit: " + invaderMoveCounter);
-                console.log("invaderSteps ist derzeit: " + invader_steps);
         
+                // Change invader sprites
                 changeInvaderSprites();
         
+                // Check if game over condition is met
                 if (invaderRowsMoved > INVADER_ROWS_MOVE) {
                     pause = true;
                     wait(2, () => {
@@ -361,16 +355,15 @@ document.addEventListener("DOMContentLoaded", function () {
             }
         
             if (remainingInvaders === 0) {
-        
+                // Reset game state and spawn new invaders
                 const invaders = get("invader");
                 for (const invader of invaders) {
                     destroy(invader);
-                    invaderDirection = 1;
-                    invaderMoveCounter = 0;
-                    invaderRowsMoved = 0;
-                    INVADER_MOVE_THRESHOLD -= 0.2;
-                    console.log("THRESHOLD auf " + INVADER_MOVE_THRESHOLD)
                 }
+                invaderDirection = 1;
+                invaderMoveCounter = 0;
+                invaderRowsMoved = 0;
+                INVADER_MOVE_THRESHOLD -= 0.2;
         
                 spawnInvaders();
         
