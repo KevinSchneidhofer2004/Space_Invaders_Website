@@ -203,7 +203,11 @@
                     .then(response => response.json())
                     .then(scores => {
                         highscoreList.innerHTML = '';
-                        scores.forEach((score, index) => {
+
+                        const numMissingScores = 10 - scores.length;
+                        const filledScores = scores.concat(Array.from({ length: numMissingScores }, () => ({ user: 'XXX', score: 'xxx' })));
+
+                        filledScores.forEach((score, index) => {
                             const listItem = document.createElement('li');
                             listItem.textContent = `${index + 1}. ${score.user}: ${score.score}`;
                             highscoreList.appendChild(listItem);

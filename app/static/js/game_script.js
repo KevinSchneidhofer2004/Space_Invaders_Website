@@ -4,7 +4,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const INVADER_COLS = 11;
     const BLOCK_HEIGHT = 52;
     const BLOCK_WIDTH = 32;
-    const OFFSET_X = 70;
+    const OFFSET_X = 80;
     const OFFSET_Y = 50;
     
     const INVADER_STEPS = 24;
@@ -25,8 +25,8 @@ document.addEventListener("DOMContentLoaded", function () {
     let score = 0;
     let remainingInvaders = INVADER_ROWS * INVADER_COLS;
 
-    let leftDirectionSteps = INVADER_STEPS;
-    let rightDirectionSteps = INVADER_STEPS;
+    /* let leftDirectionSteps = INVADER_STEPS;
+    let rightDirectionSteps = INVADER_STEPS; */
 
     kaboom({
         background: [17, 17, 17],
@@ -134,8 +134,8 @@ document.addEventListener("DOMContentLoaded", function () {
             }
 
             let totalRows = 4;
-            let minimumCols = 0;
-            let maximumCols = 10;
+            /* let minimumCols = 0;
+            let maximumCols = 10; */
 
             onCollide("bullet", "invader", (bullet, invader) => {
                 if (!shaking) {
@@ -161,7 +161,7 @@ document.addEventListener("DOMContentLoaded", function () {
                         INVADER_ROWS_MOVE++;
                     }
 
-                    if (checkColumnStatus(minimumCols) == true) {
+                    /* if (checkColumnStatus(minimumCols) == true) {
                         minimumCols++;
                         leftDirectionSteps++;
                     }
@@ -169,7 +169,7 @@ document.addEventListener("DOMContentLoaded", function () {
                     if (checkColumnStatus(maximumCols) == true) {
                         maximumCols--;
                         rightDirectionSteps++;
-                    }
+                    } */
                     
 
                     wait(0.1, () => {
@@ -217,10 +217,10 @@ document.addEventListener("DOMContentLoaded", function () {
 
         function spawnInvaders() {
             totalRows = 4;
-            minimumCols = 0;
+            /* minimumCols = 0;
             maximumCols = 10;
             leftDirectionSteps = 24;
-            rightDirectionSteps = 24;
+            rightDirectionSteps = 24; */
             INVADER_ROWS_MOVE = 5;
 
             for (let row = 0; row < INVADER_ROWS; row++) {
@@ -334,10 +334,12 @@ document.addEventListener("DOMContentLoaded", function () {
         
                 // Check if it's time to change direction
                 if (invaderMoveCounter >= invader_steps) {
-                    // Change direction and reset counter
+
                     invaderDirection *= -1;
                     invaderMoveCounter = 0;
                     moveInvadersDown();
+                    // Change direction and reset counter
+                    
                 }
         
                 invaderMoveCounter++;
@@ -373,6 +375,7 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 
     scene("gameOver", (score) => {
+
         add([
             text("Game Over", {
                 size: 80,
